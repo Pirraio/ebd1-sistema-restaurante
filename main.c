@@ -1,59 +1,283 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct dish {
     int id;
     char name[50];
 } Dish;
 
-
-typedef struct {
+typedef struct order {
     Dish *dishes;
     int count;
     int isProcessing;
+    struct order *next;
 } Order;
 
+Order *head = NULL;
+
+Dish entries[5] = {
+    {1, "Sopa de Cebola"},
+    {2, "Salada Caesar"},
+    {3, "Bruschetta"},
+    {4, "Carpaccio de Carne"},
+    {5, "Camarão ao Alho"}
+};
+
+Dish mains[5] = {
+    {1, "Lasanha à Bolonhesa"},
+    {2, "Filé Mignon com Fritas"},
+    {3, "Frango Grelhado com Legumes"},
+    {4, "Bacalhau à Gomes de Sá"},
+    {5, "Risoto de Cogumelos"}
+};
+
+Dish desserts[5] = {
+    {1, "Tiramisu"},
+    {2, "Cheesecake de Frutas Vermelhas"},
+    {3, "Pudim de Leite"},
+    {4, "Mousse de Chocolate"},
+    {5, "Sorvete de Baunilha com Calda de Morango"}
+};
+
+void addDishToOrder(Order *order, Dish dish) {
+    if (order->count == 0) {
+        order->dishes = (Dish *)malloc(sizeof(Dish));
+    } else {
+        order->dishes = (Dish *)realloc(order->dishes, (order->count + 1) * sizeof(Dish));
+    }
+    order->dishes[order->count] = dish;
+    order->count++;
+}
+
+void removeDishFromOrder(Order *order, int id) {
+    int found = 0;
+    for (int i = 0; i < order->count; i++) {
+        if (order->dishes[i].id == id) {
+            found = 1;
+        }
+        if (found && i < order->count - 1) {
+            order->dishes[i] = order->dishes[i + 1];
+        }
+    }
+    if (found) {
+        order->count--;
+        order->dishes = (Dish *)realloc(order->dishes, order->count * sizeof(Dish));
+    }
+}
+
+void createOrder() {
+    Order *newOrder = (Order *)malloc(sizeof(Order));
+    newOrder->dishes = NULL;
+    newOrder->count = 0;
+    newOrder->isProcessing = 0;
+    newOrder->next = head;
+    head = newOrder;
+
+    printf("Pedido criado. Adicione pratos ao pedido.\n");
+
+    int dishType, dishId;
+    while (1) {
+        printf("Tipo de prato (1-Entrada, 2-Prato Principal, 3-Sobremesa, 0-Para sair): ");
+        scanf("%d", &dishType);
+        if (dishType == 0) break;
+        if (dishType < 0 || dishType > 3) {
+            printf("Tipo de prato inválido.\n");
+            continue;
+        }
+
+
+        printf("Pratos disponíveis:\n");
+        switch (dishType) {
+            case 1:
+                for (int i = 0; i < 5; i++) {
+                    printf("  %d - %s\n", entries[i].id, entries[i].name);
+                }
+                break;
+            case 2:
+                for (int i = 0; i < 5; i++) {
+                    printf("  %d - %s\n", mains[i].id, mains[i].name);
+                }
+                break;
+            case 3:
+                for (int i = 0; i < 5; i++) {
+                    printf("  %d - %s\n", desserts[i].id, desserts[i].name);
+                }
+                break;
+        }
+
+        printf("ID do prato: ");
+        scanf("%d", &dishId);
+
+        Dish *selectedDish = NULL;
+        switch (dishType) {
+            case 1:
+                selectedDish = &entries[dishId - 1];
+                break;
+            case 2:
+                selectedDish = &mains[dishId - 1];
+                break;
+            case 3:
+                selectedDish = &desserts[dishId - 1];
+                break;
+            default:
+                printf("Tipo de prato inválido.\n");
+                continue;
+        }
+
+        addDishToOrder(newOrder, *selectedDish);
+        printf("Prato adicionado ao pedido.\n");
+    }
+}
+
+void listPendingOrders() {
+    Order *current = head;
+    int orderNumber = 1;
+    while (current != NULL) {
+        if (!current->isProcessing) {
+            printf("Pedido %d pendente:\n", orderNumber);
+            for (int i = 0; i < current->count; i++) {
+                printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
+            }
+        }
+        current = current->next;
+        orderNumber++;
+    }
+}
+
+void processOrder(int orderNumber) {
+    Order *current = head;
+    int currentOrderNumber = 1;
+    while (current != NULL) {
+        if (currentOrderNumber == orderNumber) {
+            current->isProcessing = 1;
+            return;
+        }
+        current = current->next;
+        currentOrderNumber++;
+    }
+}
+
+void listProcessingOrders() {
+    Order *current = head;
+    int orderNumber = 1;
+    while (current != NULL) {
+        if (current->isProcessing) {
+            printf("Pedido %d em processamento:\n", orderNumber);
+            for (int i = 0; i < current->count; i++) {
+                printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
+            }
+        }
+        current = current->next;
+        orderNumber++;
+    }
+}
 
 int main() {
-
-    Dish entries[5] = {
-        {1, "Sopa de Cebola"},
-        {2, "Salada Caesar"},
-        {3, "Bruschetta"},
-        {4, "Carpaccio de Carne"},
-        {5, "Camarão ao Alho"}
-    };
-    Dish mains[5] = {
-        {1, "Lasanha à Bolonhesa"},
-        {2, "Filé Mignon com Fritas"},
-        {3, "Frango Grelhado com Legumes"},
-        {4, "Bacalhau à Gomes de Sá"},
-        {5, "Risoto de Cogumelos"}
-    };
-    Dish desserts[5] = {
-        {1, "Tiramisu"},
-        {2, "Cheesecake de Frutas Vermelhas"},
-        {4, "Mousse de Chocolate"},
-        {3, "Pudim de Leite"},
-        {5, "Sorvete de Baunilha com Calda de Morango"}
-    };
-
-    printf("Bem-vindo ao Restaurante!\n");
-    printf("Opções:\n");
-    printf("1 - Criar Pedido\n");
-    printf("2 - Remover Pedido\n");
-    printf("3 - Listar pedidos pendentes\n");
-    printf("4 - Listar pedidos em processamento\n");
-    printf("5 - Processar pedido\n");
-    printf("6 - Sair\n");
-
     int option;
-    scanf("%d", &option);
+    do {
+        printf("Bem-vindo ao Restaurante!\n");
+        printf("Opções:\n");
+        printf("1 - Criar Pedido\n");
+        printf("2 - Adicionar Prato ao Pedido\n");
+        printf("3 - Remover Prato do Pedido\n");
+        printf("4 - Listar pedidos pendentes\n");
+        printf("5 - Listar pedidos em processamento\n");
+        printf("6 - Processar pedido\n");
+        printf("7 - Sair\n");
 
+        scanf("%d", &option);
 
+        switch (option) {
+            case 1:
+                createOrder();
+                break;
+            case 2: {
+                int orderNumber, dishType, dishId;
+                printf("Número do pedido: ");
+                scanf("%d", &orderNumber);
+                printf("Tipo de prato (1-Entrada, 2-Prato Principal, 3-Sobremesa): ");
+                scanf("%d", &dishType);
+                printf("ID do prato: ");
+                scanf("%d", &dishId);
 
+                Dish *selectedDish = NULL;
+                switch (dishType) {
+                    case 1:
+                        selectedDish = &entries[dishId - 1];
+                        break;
+                    case 2:
+                        selectedDish = &mains[dishId - 1];
+                        break;
+                    case 3:
+                        selectedDish = &desserts[dishId - 1];
+                        break;
+                }
 
-   
+                Order *current = head;
+                int currentOrderNumber = 1;
+                while (current != NULL) {
+                    if (currentOrderNumber == orderNumber) {
+                        addDishToOrder(current, *selectedDish);
+                        printf("Prato adicionado ao pedido.\n");
+                        break;
+                    }
+                    current = current->next;
+                    currentOrderNumber++;
+                }
+                break;
+            }
+            case 3: {
+                int orderNumber, dishId;
+                printf("Número do pedido: ");
+                scanf("%d", &orderNumber);
+                printf("ID do prato: ");
+                scanf("%d", &dishId);
+
+                Order *current = head;
+                int currentOrderNumber = 1;
+                while (current != NULL) {
+                    if (currentOrderNumber == orderNumber) {
+                        removeDishFromOrder(current, dishId);
+                        printf("Prato removido do pedido.\n");
+                        break;
+                    }
+                    current = current->next;
+                    currentOrderNumber++;
+                }
+                break;
+            }
+            case 4:
+                listPendingOrders();
+                break;
+            case 5:
+                listProcessingOrders();
+                break;
+            case 6: {
+                int orderNumber;
+                printf("Número do pedido: ");
+                scanf("%d", &orderNumber);
+                processOrder(orderNumber);
+                printf("Pedido processado.\n");
+                break;
+            }
+            case 7:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida.\n");
+                break;
+        }
+    } while (option != 7);
+
+    // Free allocated memory
+    Order *current = head;
+    while (current != NULL) {
+        Order *next = current->next;
+        free(current->dishes);
+        free(current);
+        current = next;
+    }
 
     return 0;
 }
