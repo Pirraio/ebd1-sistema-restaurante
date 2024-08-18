@@ -61,8 +61,17 @@ void createOrder() {
     Order *newOrder = (Order *)malloc(sizeof(Order));
     newOrder->dishes = NULL;
     newOrder->count = 0;
-    newOrder->next = pendingHead;
-    pendingHead = newOrder;
+    newOrder->next = NULL;
+
+    if (pendingHead == NULL) {
+        pendingHead = newOrder;
+    } else {
+        Order *current = pendingHead;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newOrder;
+    }
 
     printf("Pedido criado. Adicione pratos ao pedido.\n");
 
@@ -164,6 +173,7 @@ void listProcessingOrders() {
         orderNumber++;
     }
 }
+
 void removeDishFromOrder() {
     listPendingOrders();
     int orderNumber, dishId;

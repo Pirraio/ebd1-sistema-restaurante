@@ -52,5 +52,13 @@ int main() {
         current = next;
     }
 
+    current = processingHead;
+    while (current != NULL) {
+        Order *next = current->next;
+        free(current->dishes);
+        free(current);
+        current = next;
+    }
+
     return 0;
 }
