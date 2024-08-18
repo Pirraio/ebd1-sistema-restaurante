@@ -12,24 +12,26 @@ typedef struct dish {
 typedef struct order {
     Dish *dishes;
     int count;
-    int isProcessing;
     struct order *next;
 } Order;
 
-extern Order *head;
+extern Order *pendingHead;
+extern Order *processingHead;
 extern Dish entries[5];
 extern Dish mains[5];
 extern Dish desserts[5];
 
 void addDishToOrder(Order *order, Dish dish);
 
-void removeDishFromOrder(Order *order, int id);
+void removeDish(Order *order, int id);
+
+void removeDishFromOrder();
 
 void createOrder();
 
 void listPendingOrders();
 
-void processOrder(int orderNumber);
+void processNextOrder();
 
 void listProcessingOrders();
 

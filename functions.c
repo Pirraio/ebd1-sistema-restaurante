@@ -26,7 +26,8 @@ Dish desserts[5] = {
     {5, "Sorvete de Baunilha com Calda de Morango"}
 };
 
-Order *head = NULL;
+Order *pendingHead = NULL;
+Order *processingHead = NULL;
 
 void addDishToOrder(Order *order, Dish dish) {
     if (order->count == 0) {
@@ -38,7 +39,7 @@ void addDishToOrder(Order *order, Dish dish) {
     order->count++;
 }
 
-void removeDishFromOrder(Order *order, int id) {
+void removeDish(Order *order, int id) {
     int found = 0;
     for (int i = 0; i < order->count; i++) {
         if (order->dishes[i].id == id) {
@@ -51,8 +52,7 @@ void removeDishFromOrder(Order *order, int id) {
     if (found) {
         order->count--;
         order->dishes = (Dish *)realloc(order->dishes, order->count * sizeof(Dish));
-    }
-    else {
+    } else {
         printf("Prato não encontrado no pedido.\n");
     }
 }
@@ -61,9 +61,8 @@ void createOrder() {
     Order *newOrder = (Order *)malloc(sizeof(Order));
     newOrder->dishes = NULL;
     newOrder->count = 0;
-    newOrder->isProcessing = 0;
-    newOrder->next = head;
-    head = newOrder;
+    newOrder->next = pendingHead;
+    pendingHead = newOrder;
 
     printf("Pedido criado. Adicione pratos ao pedido.\n");
 
@@ -76,7 +75,6 @@ void createOrder() {
             printf("Tipo de prato inválido.\n");
             continue;
         }
-
 
         printf("Pratos disponíveis:\n");
         switch (dishType) {
@@ -100,6 +98,11 @@ void createOrder() {
         printf("ID do prato: ");
         scanf("%d", &dishId);
 
+        if (dishId < 1 || dishId > 5) {
+            printf("ID de prato inválido.\n");
+            continue;
+        }
+
         Dish *selectedDish = NULL;
         switch (dishType) {
             case 1:
@@ -122,44 +125,67 @@ void createOrder() {
 }
 
 void listPendingOrders() {
-    Order *current = head;
+    Order *current = pendingHead;
     int orderNumber = 1;
     while (current != NULL) {
-        if (!current->isProcessing) {
-            printf("Pedido %d pendente:\n", orderNumber);
-            for (int i = 0; i < current->count; i++) {
-                printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
-            }
+        printf("Pedido %d pendente:\n", orderNumber);
+        for (int i = 0; i < current->count; i++) {
+            printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
         }
         current = current->next;
         orderNumber++;
     }
 }
 
-void processOrder(int orderNumber) {
-    Order *current = head;
+void processNextOrder() {
+    if (pendingHead == NULL) {
+        printf("Nenhum pedido pendente para processar.\n");
+        return;
+    }
+
+    Order *orderToProcess = pendingHead;
+    pendingHead = pendingHead->next;
+
+    orderToProcess->next = processingHead;
+    processingHead = orderToProcess;
+
+    printf("Pedido processado.\n");
+}
+
+void listProcessingOrders() {
+    Order *current = processingHead;
+    int orderNumber = 1;
+    while (current != NULL) {
+        printf("Pedido %d em processamento:\n", orderNumber);
+        for (int i = 0; i < current->count; i++) {
+            printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
+        }
+        current = current->next;
+        orderNumber++;
+    }
+}
+void removeDishFromOrder() {
+    listPendingOrders();
+    int orderNumber, dishId;
+    printf("Número do pedido: ");
+    scanf("%d", &orderNumber);
+
+    Order *current = pendingHead;
     int currentOrderNumber = 1;
     while (current != NULL) {
         if (currentOrderNumber == orderNumber) {
-            current->isProcessing = 1;
+            printf("Pratos no pedido %d:\n", orderNumber);
+            for (int i = 0; i < current->count; i++) {
+                printf("  %d - %s\n", current->dishes[i].id, current->dishes[i].name);
+            }
+            printf("ID do prato a remover: ");
+            scanf("%d", &dishId);
+            removeDish(current, dishId);
+            printf("Prato removido do pedido.\n");
             return;
         }
         current = current->next;
         currentOrderNumber++;
     }
-}
-
-void listProcessingOrders() {
-    Order *current = head;
-    int orderNumber = 1;
-    while (current != NULL) {
-        if (current->isProcessing) {
-            printf("Pedido %d em processamento:\n", orderNumber);
-            for (int i = 0; i < current->count; i++) {
-                printf("  Prato %d: %s\n", current->dishes[i].id, current->dishes[i].name);
-            }
-        }
-        current = current->next;
-        orderNumber++;
-    }
+    printf("Pedido não encontrado.\n");
 }
