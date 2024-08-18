@@ -5,8 +5,8 @@
 
 int main() {
     int option;
+    printf("Bem-vindo ao Restaurante!\n");
     do {
-        printf("Bem-vindo ao Restaurante!\n");
         printf("Opções:\n");
         printf("1 - Criar Pedido\n");
         printf("2 - Adicionar Prato ao Pedido\n");
@@ -55,6 +55,9 @@ int main() {
                     current = current->next;
                     currentOrderNumber++;
                 }
+                if (current == NULL) {
+                    printf("Pedido não encontrado.\n");
+                }
                 break;
             }
             case 3: {
@@ -74,6 +77,9 @@ int main() {
                     }
                     current = current->next;
                     currentOrderNumber++;
+                }
+                if (current == NULL) {
+                    printf("Pedido não encontrado.\n");
                 }
                 break;
             }
@@ -100,6 +106,7 @@ int main() {
         }
     } while (option != 7);
 
+    // Libera a memória alocada para os pedidos
     Order *current = head;
     while (current != NULL) {
         Order *next = current->next;

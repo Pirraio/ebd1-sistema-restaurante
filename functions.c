@@ -52,6 +52,9 @@ void removeDishFromOrder(Order *order, int id) {
         order->count--;
         order->dishes = (Dish *)realloc(order->dishes, order->count * sizeof(Dish));
     }
+    else {
+        printf("Prato não encontrado no pedido.\n");
+    }
 }
 
 void createOrder() {
