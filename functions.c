@@ -29,7 +29,7 @@ Dish desserts[5] = {
 Order *pendingHead = NULL;
 Order *processingHead = NULL;
 
-void addDishToOrder(Order *order, Dish dish) {
+void addDishToOrder(Order *order, Dish dish) { //Adiciona um prato ao pedido
     if (order->count == 0) {
         order->dishes = (Dish *)malloc(sizeof(Dish));
     } else {
@@ -39,7 +39,7 @@ void addDishToOrder(Order *order, Dish dish) {
     order->count++;
 }
 
-void removeDish(Order *order, int id) {
+void removeDish(Order *order, int id) { //Remove um prato do pedido
     int found = 0;
     for (int i = 0; i < order->count; i++) {
         if (order->dishes[i].id == id) {
@@ -57,7 +57,7 @@ void removeDish(Order *order, int id) {
     }
 }
 
-void createOrder() {
+void createOrder() { //Cria um pedido
     Order *newOrder = (Order *)malloc(sizeof(Order));
     newOrder->dishes = NULL;
     newOrder->count = 0;
@@ -133,7 +133,7 @@ void createOrder() {
     }
 }
 
-void listPendingOrders() {
+void listPendingOrders() { //Lista os pedidos pendentes 
     Order *current = pendingHead;
     int orderNumber = 1;
     while (current != NULL) {
@@ -146,7 +146,7 @@ void listPendingOrders() {
     }
 }
 
-void processNextOrder() {
+void processNextOrder() { //Processa o próximo pedido
     if (pendingHead == NULL) {
         printf("Nenhum pedido pendente para processar.\n");
         return;
@@ -161,7 +161,7 @@ void processNextOrder() {
     printf("Pedido processado.\n");
 }
 
-void listProcessingOrders() {
+void listProcessingOrders() { //Lista os pedidos em processamento
     Order *current = processingHead;
     int orderNumber = 1;
     while (current != NULL) {
@@ -174,7 +174,7 @@ void listProcessingOrders() {
     }
 }
 
-void removeDishFromOrder() {
+void removeDishFromOrder() { //Remove um prato do pedido
     listPendingOrders();
     int orderNumber, dishId;
     printf("Número do pedido: ");

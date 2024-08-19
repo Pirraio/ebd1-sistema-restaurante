@@ -7,6 +7,7 @@ int main() {
     int option;
     printf("Bem-vindo ao Restaurante!\n");
     do {
+        printf("====================================\n");
         printf("Opções:\n");
         printf("1 - Criar Pedido\n");
         printf("2 - Remover Prato do Pedido\n");
@@ -14,28 +15,32 @@ int main() {
         printf("4 - Listar pedidos em processamento\n");
         printf("5 - Processar pedido\n");
         printf("6 - Sair\n");
-
-        scanf("%d", &option);
-
-        switch (option) {
-            case 1:
+        printf("====================================\n");
+        
+        if (scanf("%d", &option) != 1) { //Caso o usuário digite um caractere inválido
+            printf("Opção inválida.\n");
+            while (getchar() != '\n'); 
+            continue;
+        }
+        switch (option) { 
+            case 1: //Cria um pedido
                 createOrder();
                 break;
-            case 2: {
+            case 2: { //Remove um prato do pedido
                 removeDishFromOrder();
                 break;
             }
-            case 3:
+            case 3: //Lista os pedidos pendentes
                 listPendingOrders();
                 break;
-            case 4:
+            case 4: //Lista os pedidos em processamento
                 listProcessingOrders();
                 break;
-            case 5: {
+            case 5: { //Processa o próximo pedido
                 processNextOrder();
                 break;
             }
-            case 6:
+            case 6: //Sai do programa
                 printf("Saindo...\n");
                 break;
             default:
@@ -44,7 +49,7 @@ int main() {
         }
     } while (option != 6);
 
-    Order *current = pendingHead;
+    Order *current = pendingHead; //Libera a memória alocada para os pedidos
     while (current != NULL) {
         Order *next = current->next;
         free(current->dishes);
@@ -52,7 +57,7 @@ int main() {
         current = next;
     }
 
-    current = processingHead;
+    current = processingHead; 
     while (current != NULL) {
         Order *next = current->next;
         free(current->dishes);
